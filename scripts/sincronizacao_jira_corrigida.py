@@ -75,19 +75,20 @@ class SincronizacaoJiraCorrigida:
             'recursos_atualizados': 0,
             'projetos_criados': 0,
             'projetos_atualizados': 0,
-            'secoes_criadas': 0,
+
             'erros': 0
         }
 
-    async def upsert_secao(self, jira_project_key: str) -> Optional[Any]:
+    async def buscar_secao(self, jira_project_key: str) -> Optional[Any]:
         """
-        Busca ou cria uma seção baseada no jira_project_key.
+        Busca uma seção existente baseada no jira_project_key.
+        NÃO CRIA novas seções - apenas busca existentes.
         
         Args:
             jira_project_key: Chave do projeto Jira (ex: "DTIN", "SGI")
             
         Returns:
-            Objeto seção ou None se erro
+            Objeto seção ou None se não encontrada
         """
         try:
             # Buscar seção existente
@@ -96,23 +97,12 @@ class SincronizacaoJiraCorrigida:
             if secao:
                 logger.info(f"[SECAO_FOUND] Seção encontrada: {secao.nome} (id={secao.id})")
                 return secao
-            
-            # Criar nova seção
-            secao_data = {
-                "nome": f"Seção {jira_project_key}",
-                "jira_project_key": jira_project_key,
-                "descricao": f"Seção criada automaticamente para projeto Jira {jira_project_key}",
-                "ativo": True
-            }
-            
-            secao = await self.secao_repo.create(secao_data)
-            self.stats['secoes_criadas'] += 1
-            logger.info(f"[SECAO_CREATED] Nova seção criada: {secao.nome} (id={secao.id})")
-            
-            return secao
+            else:
+                logger.warning(f"[SECAO_NOT_FOUND] Seção não encontrada para {jira_project_key}")
+                return None
             
         except Exception as e:
-            logger.error(f"[SECAO_ERROR] Erro ao processar seção {jira_project_key}: {str(e)}")
+            logger.error(f"[SECAO_ERROR] Erro ao buscar seção {jira_project_key}: {str(e)}")
             return None
 
     async def upsert_recurso(self, assignee_data: Dict[str, Any]) -> Optional[Any]:
@@ -300,11 +290,16 @@ class SincronizacaoJiraCorrigida:
         
         logger.info(f"[ISSUE] Processando {issue_key}")
         
-        # 1. Determinar seção (prefixo da issue)
+        # 1. Buscar seção existente (prefixo da issue)
         project_prefix = issue_key.split("-")[0] if "-" in issue_key else issue_key
-        secao = await self.upsert_secao(project_prefix)
+        
+        # Mapeamento correto: DTIN (Jira) → TIN (Seção)
+        if project_prefix == "DTIN":
+            project_prefix = "TIN"
+        
+        secao = await self.buscar_secao(project_prefix)
         if not secao:
-            logger.error(f"[ISSUE_SKIP] Seção não encontrada para {issue_key}")
+            logger.error(f"[ISSUE_SKIP] Seção não encontrada para {issue_key} (prefix: {project_prefix})")
             return
         
         # 2. Upsert do projeto (issue = projeto)
