@@ -27,10 +27,10 @@ O código separa rotas HTTP (`app/api/`), serviços (`app/application/`), domín
 
 O ponto de entrada está em `app/main.py`; as dependências estão em `requirements.txt`. Examine os modelos de alocação, as rotas de apontamentos e os serviços de relatórios.
 
-Este código surgiu em um ambiente com serviços externos de autenticação, banco de dados e gestão de tarefas. **A execução ponta a ponta em ambiente independente não foi validada.** Qualquer demonstração deve utilizar dados fictícios, serviços próprios e credenciais não versionadas.
+**Pré-requisitos para demonstração:** uma instância de PostgreSQL, a configuração das integrações e uma base de dados de exemplo. A execução completa depende desses serviços; não há ambiente demonstrativo público disponível neste repositório.
 
 ## Competências demonstradas
 
 Modelagem relacional, regras de negócio, APIs REST, integração entre sistemas, automação e construção de indicadores de gestão.
 
-**Status:** projeto histórico; integrações externas não revalidadas nesta revisão.
+**Status:** implementação documentada; as integrações exigem configuração para execução local.
