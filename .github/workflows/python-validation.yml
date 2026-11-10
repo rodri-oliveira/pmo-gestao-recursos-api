@@ -1,0 +1,22 @@
+name: Python syntax validation
+on:
+  push:
+    branches: [master]
+    paths:
+      - '**/*.py'
+      - '.github/workflows/python-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile Python files without running integrations
+        run: python -m compileall -q .
