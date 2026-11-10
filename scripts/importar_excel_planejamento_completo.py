@@ -164,10 +164,10 @@ class ImportadorExcelPlanejamento:
                 logger.error(f"[RECURSO_ERRO] Email do recurso '{nome}' está vazio")
                 return None
             
-            # Sanitizar email: se não tiver '@', assume domínio weg.net
+            # Completar domínio de e-mail conforme a configuração de desenvolvimento
             email = email.strip()
             if '@' not in email:
-                email = f"{email.lower()}@weg.net"
+                email = f"{email.lower()}@{os.getenv('RESOURCE_EMAIL_DOMAIN', 'example.invalid')}"
             
             # Buscar recurso existente pelo email (chave única)
             recurso_existente = self.session.query(Recurso).filter(Recurso.email == email).first()
@@ -548,7 +548,7 @@ class ImportadorExcelPlanejamento:
             
             # Se não encontrou email válido, gerar baseado no nome
             if not email_recurso or email_recurso == 'nan' or email_recurso == self.nome_aba:
-                email_recurso = f"{self.nome_aba.lower().replace(' ', '.')}@weg.net"
+                email_recurso = f"{self.nome_aba.lower().replace(' ', '.')}@{os.getenv('RESOURCE_EMAIL_DOMAIN', 'example.invalid')}"
                 logger.warning(f"[EMAIL_GERADO] Email não encontrado na planilha, gerado: {email_recurso}")
             else:
                 logger.info(f"[EMAIL_PLANILHA] Email encontrado na planilha: {email_recurso}")
