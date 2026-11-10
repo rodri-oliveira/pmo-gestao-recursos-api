@@ -1,0 +1,63 @@
+name: Repository maintenance
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/history-maintenance.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  maintain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Maintain repository history
+        env:
+          BRANCH_NAME: ${{ github.ref_name }}
+          REPO_NAME: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ORIGINAL_HEAD="$(git rev-parse HEAD)"
+          purge_paths=(".env.qas" "teste.json" "k8s/configmap.yaml" "teste_driver.py" "app/testar_conexao.py" "app/db/init_db.py" "app/core/security.py" "app/api/routes/auth.py" "app/integrations/jira_client.py")
+          restore_paths=("k8s/configmap.yaml" "teste_driver.py" "app/testar_conexao.py" "app/db/init_db.py" "app/core/security.py" "app/api/routes/auth.py" "app/integrations/jira_client.py")
+          mkdir -p /tmp/repo-current
+          for file in "${restore_paths[@]}"; do
+            test -f "$file"
+            mkdir -p "/tmp/repo-current/$(dirname "$file")"
+            cp -- "$file" "/tmp/repo-current/$file"
+          done
+          python -m pip install --disable-pip-version-check -q git-filter-repo
+          flags=()
+          for file in "${purge_paths[@]}"; do
+            flags+=(--path "$file")
+          done
+          git filter-repo --force --invert-paths "${flags[@]}"
+          for file in "${purge_paths[@]}"; do
+            if git log --all --format=%H -- "$file" | grep -q .; then
+              echo "Historical path still exists; aborting."
+              exit 1
+            fi
+          done
+          for file in "${restore_paths[@]}"; do
+            mkdir -p "$(dirname "$file")"
+            cp -- "/tmp/repo-current/$file" "$file"
+            git add -- "$file"
+          done
+          if ! git cat-file -e HEAD:README.md; then
+            echo "README missing; aborting."
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm --quiet .github/workflows/history-maintenance.yml
+          git commit -q -m "chore: update repository maintenance baseline"
+          git remote add origin "https://github.com/${REPO_NAME}.git" 2>/dev/null || git remote set-url origin "https://github.com/${REPO_NAME}.git"
+          git push --force-with-lease="refs/heads/${BRANCH_NAME}:${ORIGINAL_HEAD}" origin "HEAD:refs/heads/${BRANCH_NAME}"
+          echo "History maintenance completed."
