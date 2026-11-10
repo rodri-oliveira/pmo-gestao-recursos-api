@@ -1,0 +1,15 @@
+# Configuração de exemplo para ambientes de desenvolvimento isolados.
+# Valores de autenticação devem ser fornecidos por mecanismos de segredos.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pmo-config
+data:
+  SWAGGER_SERVERS_LIST: "/,/api"
+  DB_HOST: ""
+  DB_PORT: "5432"
+  DB_NAME: ""
+  DB_USER: ""
+  NEXT_PUBLIC_BACKEND_URL: "http://localhost:8000"
+  JIRA_BASE_URL: ""
+  AUTH_KEYCLOAK_ISSUER: ""
