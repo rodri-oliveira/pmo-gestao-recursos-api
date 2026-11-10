@@ -39,7 +39,6 @@ class Settings(BaseSettings):
         "http://localhost:3000", 
         "http://localhost:3001", 
         "http://localhost:8000",
-        "https://automacao-pmo-qas.weg.net"
     ]
     
     # Configurações do Jira (lidos do .env)
