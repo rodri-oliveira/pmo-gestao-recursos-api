@@ -1,73 +1,36 @@
-# WEG Automação PMO - Backend
+# Gestão de Projetos e Recursos — API PMO
 
-Este repositório contém o backend da **Plataforma de Otimização Estratégica de Recursos do PMO**. A solução foi desenvolvida para transformar dados operacionais em inteligência estratégica, centralizando informações, automatizando processos e fornecendo visibilidade em tempo real para uma tomada de decisão ágil e fundamentada.
+Backend desenvolvido em **Python e FastAPI** para apoiar o planejamento de projetos, a distribuição de profissionais e a análise de horas planejadas e efetivamente apontadas.
 
----
+## Problema e solução
 
-## Visão Geral
+Quando projetos, equipes e horas são acompanhados em controles separados, fica difícil identificar sobrecargas e comparar planejamento com execução. A API estrutura essas informações em entidades relacionadas e fornece consultas e indicadores para uma interface gerencial.
 
-A plataforma substitui o modelo anterior baseado em planilhas, superando seus limites de escalabilidade. O objetivo é ser um hub central de inteligência para a gestão de projetos, equipes e recursos, com integração nativa ao Jira para automação da coleta de apontamentos de horas.
+## Funcionalidades presentes no repositório
 
-| Pilar de Transformação | Resultado Estratégico |
-| :--- | :--- |
-| **Eficiência Operacional** | Automação de tarefas manuais, liberando a equipe para atividades de maior valor agregado. |
-| **Confiabilidade da Informação** | Dados precisos e em tempo real, servindo como uma fonte única e confiável. |
-| **Inteligência de Negócio** | Capacidade de realizar análises preditivas e proativas para otimizar a alocação de talentos. |
-| **Governança e Controle** | Visibilidade completa sobre o portfólio de projetos, garantindo alinhamento estratégico. |
+- Cadastro e relacionamento entre **seções, equipes, recursos e projetos**.
+- Gestão de **alocações** e **horas planejadas**.
+- Consolidação de **apontamentos** e indicadores de **planejado × realizado**.
+- Endpoints de relatórios, dashboards e filtros por período, projeto e equipe.
+- Rotinas de integração e sincronização com plataforma de gestão de tarefas.
+- Componentes de autenticação e registros de atividade.
 
----
+## Arquitetura e tecnologias
 
-## Configuração do Ambiente
+**Python · FastAPI · Pydantic · PostgreSQL · SQLAlchemy · Alembic**
 
-### 1. Variáveis de Ambiente
+O código separa rotas HTTP (`app/api/`), serviços (`app/application/`), domínio (`app/domain/`), persistência (`app/infrastructure/`) e configuração (`app/core/`).
 
-Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis. Para o ambiente de desenvolvimento, você pode usar os valores de exemplo abaixo.
+**Interface web:** [PMO — Frontend](https://github.com/rodri-oliveira/pmo-gestao-recursos-web).
 
-```env
-# Exemplo de configuração para desenvolvimento local
-SWAGGER_SERVERS_LIST=/,/api
+## Como avaliar
 
-# Configurações do Banco de Dados (exemplo)
-POSTGRES_SERVER=localhost
-POSTGRES_USER=seu_usuario
-POSTGRES_PASSWORD=sua_senha
-POSTGRES_DB=automacaopmopostgre
-POSTGRES_PORT=5432
-```
+O ponto de entrada está em `app/main.py`; as dependências estão em `requirements.txt`. Examine os modelos de alocação, as rotas de apontamentos e os serviços de relatórios.
 
-#### Comandos de Inicialização do Banco
+Este código surgiu em um ambiente com serviços externos de autenticação, banco de dados e gestão de tarefas. **A execução ponta a ponta em ambiente independente não foi validada.** Qualquer demonstração deve utilizar dados fictícios, serviços próprios e credenciais não versionadas.
 
-Execute os seguintes comandos para preparar o banco de dados:
+## Competências demonstradas
 
-1.  **Testar a conexão:**
-    ```sh
-    python -m app.db.test_connection
-    ```
+Modelagem relacional, regras de negócio, APIs REST, integração entre sistemas, automação e construção de indicadores de gestão.
 
-2.  **Criar e aplicar as migrações com Alembic:**
-    ```sh
-    # Gerar um novo arquivo de migração baseado nas mudanças dos modelos
-    alembic revision --autogenerate -m "Sua mensagem de migração"
-
-    # Aplicar todas as migrações pendentes
-    alembic upgrade head
-    ```
-
-3.  **Inicializar com dados básicos (se necessário):**
-    ```sh
-    python -m app.db.init_db
-    ```
-
----
-
-## Executando a API
-
-Este projeto utiliza FastAPI. Para executar o servidor de desenvolvimento, utilize o comando:
-
-```sh
-python -m app.main
-```
-
-A API estará disponível em [http://localhost:8000](http://localhost:8000).
-
-A documentação interativa (Swagger UI) pode ser acessada em [http://localhost:8000/docs](http://localhost:8000/docs).
+**Status:** projeto histórico; integrações externas não revalidadas nesta revisão.
